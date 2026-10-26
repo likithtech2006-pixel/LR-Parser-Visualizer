@@ -1,0 +1,4 @@
+# Expression grammar (Dragon Book 4.1): SLR(1), LALR(1), CLR(1) - not LR(0)
+E -> E + T | T
+T -> T * F | F
+F -> ( E ) | id

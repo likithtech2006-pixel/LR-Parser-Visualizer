@@ -1,0 +1,4 @@
+# Reduce-reduce conflict in LR(0); SLR(1) resolves it with FOLLOW sets
+S -> A a | B b
+A -> x
+B -> x

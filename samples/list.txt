@@ -1,0 +1,3 @@
+# Small LR(0) list grammar
+S -> ( L ) | x
+L -> S | L , S

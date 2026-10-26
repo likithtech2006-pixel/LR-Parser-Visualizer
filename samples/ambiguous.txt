@@ -1,0 +1,2 @@
+# Ambiguous expression grammar: not LR(k) for any k (conflicts in every variant)
+E -> E + E | E * E | ( E ) | id

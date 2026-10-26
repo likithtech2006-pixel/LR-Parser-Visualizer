@@ -1,0 +1,2 @@
+# Balanced parentheses with an epsilon production: SLR(1) but not LR(0)
+S -> ( S ) S | eps

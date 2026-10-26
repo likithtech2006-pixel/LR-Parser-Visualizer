@@ -1,0 +1,4 @@
+# Dragon Book 4.55: LR(0) and therefore every larger class.
+# LALR(1) merges CLR states 3/6, 4/7 and 8/9.
+S -> C C
+C -> c C | d

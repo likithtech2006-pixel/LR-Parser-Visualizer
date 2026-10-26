@@ -1,0 +1,4 @@
+# Dragon Book 4.48: not SLR(1) (shift-reduce on =), but LALR(1) and CLR(1)
+S -> L = R | R
+L -> * R | id
+R -> L

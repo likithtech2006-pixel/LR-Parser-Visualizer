@@ -1,0 +1,9 @@
+# Code-only repository: review documents and generator scripts stay local.
+docs/*
+!docs/TEST_RESULTS.md
+.claude/
+.DS_Store
+# Compiled C console version
+lr_parser
+*.o
+node_modules/

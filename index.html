@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LR Parser Visualizer</title>
+<meta name="description" content="Interactive step-by-step construction of LR(0), SLR(1), CLR(1) and LALR(1) parsers.">
+<script>
+  // Apply the saved theme before first paint (light is the default).
+  try { if (localStorage.getItem('lrviz-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="8"/>
+      <circle cx="10" cy="11" r="3"/><circle cx="22" cy="11" r="3"/><circle cx="16" cy="22" r="3"/>
+      <path d="M13 11h6M11.5 13.5l3 6M20.5 13.5l-3 6"/>
+    </svg>
+    <div>
+      <strong>LR Parser Visualizer</strong>
+      <span>Compiler Design Lab · Project 7</span>
+    </div>
+  </div>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <span>Syntax Analysis</span><span class="sep">/</span><span>Bottom-Up Parsing</span><span class="sep">/</span><b id="crumbLeaf">LR Parsing</b>
+  </nav>
+  <button id="themeToggle" class="icon-btn" type="button" aria-label="Switch to dark mode" title="Toggle dark mode">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+  </button>
+</header>
+
+<main class="page">
+  <section class="page-head">
+    <div>
+      <h1>Bottom-Up Parsing</h1>
+      <p>Build shift-reduce parsers from your own grammar and watch every construction step: item sets, the automaton, the parsing table and the parse.</p>
+    </div>
+    <div class="tech-tabs" role="tablist" aria-label="Parsing technique">
+      <button role="tab" class="tech active" data-tech="lr" aria-selected="true">LR Parsing</button>
+      <button role="tab" class="tech" data-tech="op" aria-selected="false">Operator Precedence Parsing</button>
+    </div>
+  </section>
+
+  <!-- ===================== LR PARSING ===================== -->
+  <div id="lrView" class="layout">
+    <aside class="panel input-panel" aria-label="Grammar input">
+      <div class="panel-head"><h2>Grammar</h2></div>
+      <div class="panel-body">
+        <label class="field">
+          <span>Load an example</span>
+          <select id="exampleSelect"></select>
+        </label>
+        <p id="exampleNote" class="example-note"></p>
+
+        <label class="field">
+          <span>Productions</span>
+          <textarea id="grammarInput" spellcheck="false" rows="8" aria-describedby="grammarHint"></textarea>
+        </label>
+        <p id="grammarHint" class="hint">One rule per line: <code>E -> E + T | T</code>. Separate symbols with spaces. Write <code>ε</code>, <code>∈</code> or <code>eps</code> for an empty body. The first left-hand side is the start symbol.</p>
+
+        <div class="field">
+          <span>LR variant</span>
+          <div class="segmented" id="variantSeg" role="radiogroup" aria-label="LR variant">
+            <button role="radio" data-variant="LR(0)">LR(0)</button>
+            <button role="radio" data-variant="SLR(1)">SLR(1)</button>
+            <button role="radio" data-variant="CLR(1)">CLR(1)</button>
+            <button role="radio" data-variant="LALR(1)">LALR(1)</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Test string</span>
+          <input id="inputString" spellcheck="false" autocomplete="off" placeholder="e.g. id + id * id">
+        </label>
+
+        <button id="buildBtn" class="btn primary block" type="button">Build parser</button>
+        <div id="grammarMsg" class="msg" role="status" aria-live="polite"></div>
+        <div id="classMini" class="class-mini"></div>
+      </div>
+    </aside>
+
+    <section class="panel workspace" aria-label="Parser construction">
+      <div class="phase-tabs" id="phaseTabs" role="tablist"></div>
+      <div class="toolbar">
+        <div class="toolbar-title">
+          <h2 id="phaseTitle">Augmented grammar</h2>
+          <span id="stepCounter" class="counter"></span>
+        </div>
+        <div class="controls" role="group" aria-label="Step controls">
+          <button class="btn icon" id="btnReset" type="button" title="Back to the first step of this phase" aria-label="First step">
+            <svg viewBox="0 0 24 24"><path d="M6 5v14M19 5l-9 7 9 7z"/></svg></button>
+          <button class="btn icon" id="btnPrev" type="button" title="Previous step (←)" aria-label="Previous step">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="btn primary" id="btnNext" type="button" title="Next step (→)">Next step
+            <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button class="btn icon" id="btnPlay" type="button" title="Play this phase automatically" aria-label="Play">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+          <button class="btn icon" id="btnEnd" type="button" title="Complete this phase" aria-label="Complete phase">
+            <svg viewBox="0 0 24 24"><path d="M18 5v14M5 5l9 7-9 7z"/></svg></button>
+        </div>
+      </div>
+      <div id="stepNote" class="step-note" aria-live="polite"></div>
+      <div id="phaseView" class="phase-view"></div>
+    </section>
+
+    <aside class="panel inspector" aria-label="Inspector">
+      <div class="panel-head"><h2>Inspector</h2><span id="inspectorTag" class="tag"></span></div>
+      <div id="inspector" class="panel-body"></div>
+    </aside>
+  </div>
+
+  <!-- ===================== OPERATOR PRECEDENCE ===================== -->
+  <div id="opView" class="op-view" hidden>
+    <div class="panel op-card">
+      <h2>Operator Precedence Parsing</h2>
+      <p>Operator precedence parsing is the second bottom-up technique on this page. It is implemented as a separate module, outside the scope of Project 7, which covers the LR family.</p>
+      <p>It works on <em>operator grammars</em>: no ε-productions and no two adjacent non-terminals. It uses the precedence relations <code>⋖</code>, <code>≐</code> and <code>⋗</code> between terminals instead of item sets.</p>
+      <button class="btn primary" type="button" data-goto-tech="lr">Go to LR Parsing</button>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <span>LR Parser Visualizer · Compiler Design Lab · Project 7: Interactive GUI for Bottom-Up Parsing (LR Family)</span>
+  <span>Keys: <kbd>→</kbd> next step · <kbd>←</kbd> previous step</span>
+</footer>
+
+<script src="engine.js"></script>
+<script src="graph.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
