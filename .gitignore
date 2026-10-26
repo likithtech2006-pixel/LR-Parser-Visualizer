@@ -7,3 +7,5 @@ docs/*
 lr_parser
 *.o
 node_modules/
+.vercel
+.env*
