@@ -453,3 +453,4 @@ svg.ptree text { font: 600 12px var(--mono); fill: var(--text); }
 /* Review 1 mode: only LR(0) and SLR(1) */
 .review1 #variantSeg { grid-template-columns: repeat(2, 1fr); }
 .review1 #variantSeg [data-variant="CLR(1)"], .review1 #variantSeg [data-variant="LALR(1)"] { display: none; }
+.footer a { color: var(--accent); }
