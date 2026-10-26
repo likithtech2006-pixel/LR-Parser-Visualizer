@@ -2,8 +2,8 @@
 
 **Interactive GUI for Bottom-Up Parsing (LR Family)**, Compiler Design Lab.
 
-**Live demo:** https://likithtech2006-pixel.github.io/LR-Parser-Visualizer/  
-**Review 1 mode (LR(0) and SLR(1) only):** https://likithtech2006-pixel.github.io/LR-Parser-Visualizer/?review1  
+**Live demo:** https://lr-parser-visualizer.vercel.app  
+**Review mode (LR(0) and SLR(1) only):** https://lr-parser-visualizer.vercel.app/?review1  
 **Source code:** https://github.com/likithtech2006-pixel/LR-Parser-Visualizer
 
 You enter a grammar, pick **LR(0), SLR(1), CLR(1) or LALR(1)**, and watch the parser being built one step at a time:

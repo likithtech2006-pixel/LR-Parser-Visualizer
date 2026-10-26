@@ -1,0 +1,7 @@
+# Deploy only the static site (no review documents, build scripts or tests).
+docs
+tests
+samples
+lr_parser.c
+.claude
+.DS_Store
